@@ -1,6 +1,6 @@
 {
   "name": "hydr",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "index.js",
   "license": "MIT",
   "repository": {
@@ -8,6 +8,12 @@
     "url": "https://github.com/maythiwat/hydr.git"
   },
   "homepage": "https://github.com/maythiwat/hydr",
+  "keywords": [
+    "cli",
+    "download",
+    "downloader",
+    "parallel"
+  ],
   "dependencies": {
     "axios": "^0.21.1",
     "cli-progress": "^3.9.0",
