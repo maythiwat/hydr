@@ -25,12 +25,15 @@ const getHeaderInfo = async (url) => {
             }
         })
         // console.log(res.headers, '\n')
-        if (res.headers['accept-ranges']) {
+
+        info.connected = true
+        if (res.headers['content-length']) {
             info.fileBytes = parseInt(res.headers['content-length'])
+        }
+        if (res.headers['accept-ranges']) {
             info.fileMime = res.headers['content-type']
             info.supportRanges = (res.headers['accept-ranges'] == 'bytes')
             info.withHead = true
-            info.connected = true
         }
     } catch (e) {
         if (e.response) {
@@ -50,11 +53,12 @@ const getHeaderInfo = async (url) => {
             }
         })
         // console.log(res.headers, '\n')
+
+        info.connected = true
+        info.fileMime = res.headers['content-type']
         if (res.headers['content-range']) {
             info.fileBytes = parseInt(res.headers['content-range'].replace('bytes 0-0/', ''))
-            info.fileMime = res.headers['content-type']
             info.supportRanges = (parseInt(res.headers['content-length']) == 1)
-            info.connected = true
         }
     } catch (e) {
         if (e.response) {
@@ -167,8 +171,8 @@ const start = async (chunks, urlTarget, destFile, chunkProgress) => {
         return;
     }
 
-    if (!info.supportRanges) {
-        console.log('^ server is not support ranges\n')
+    if (!info.supportRanges && chunks > 1) {
+        console.log('^ server is not support ranges (use -c 1 instead)\n')
         return;
     }
 
