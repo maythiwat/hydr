@@ -1,0 +1,15 @@
+{
+  "name": "hydr",
+  "version": "0.0.1",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "cli-progress": "^3.9.0",
+    "mime-types": "^2.1.32",
+    "yargs": "^17.0.1"
+  },
+  "bin": {
+    "hydr": "./cli.js"
+  }
+}
