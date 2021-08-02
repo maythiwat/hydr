@@ -10,6 +10,7 @@ const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 
 
 const getHeaderInfo = async (url) => {
     const info = {
+        connected: false,
         fileBytes: 0,
         fileMime: null,
         supportRanges: false,
@@ -29,9 +30,15 @@ const getHeaderInfo = async (url) => {
             info.fileMime = res.headers['content-type']
             info.supportRanges = (res.headers['accept-ranges'] == 'bytes')
             info.withHead = true
+            info.connected = true
         }
     } catch (e) {
-        console.log('^ failed with code:', e.response.status)
+        if (e.response) {
+            console.log('^ server returned code:', e.response.status)
+        }else{
+            info.connected = false
+            console.log('^ failed:', e.message)
+        }
     }
 
     try {
@@ -47,9 +54,15 @@ const getHeaderInfo = async (url) => {
             info.fileBytes = parseInt(res.headers['content-range'].replace('bytes 0-0/', ''))
             info.fileMime = res.headers['content-type']
             info.supportRanges = (parseInt(res.headers['content-length']) == 1)
+            info.connected = true
         }
     } catch (e) {
-        console.log('^ failed with code:', e.response.status)
+        if (e.response) {
+            console.log('^ server returned code:', e.response.status)
+        } else {
+            info.connected = false
+            console.log('^ failed:', e.message)
+        }
     }
 
     return info
@@ -149,6 +162,11 @@ const start = async (chunks, urlTarget, destFile, chunkProgress) => {
     console.time('time elapsed')
 
     const info = await getHeaderInfo(urlTarget)
+    if (!info.connected) {
+        console.log('')
+        return;
+    }
+
     if (!info.supportRanges) {
         console.log('^ server is not support ranges\n')
         return;
