@@ -8,6 +8,10 @@ const cliProgress = require('cli-progress')
 
 const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.107 Safari/537.36'
 
+const sleep = (ms) => {
+    return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
 const getHeaderInfo = async (url) => {
     const info = {
         connected: false,
@@ -72,7 +76,7 @@ const getHeaderInfo = async (url) => {
     return info
 }
 
-const downloader = async (info, chunks, urlTarget, chunkProgress) => {
+const downloader = async (info, chunks, urlTarget, chunkProgress, delay) => {
     const multibar = new cliProgress.MultiBar({
         format: ' <{chunk}> {bar} | {value}/{total} ({percentage}%, eta={eta}s)',
         clearOnComplete: false,
@@ -99,6 +103,10 @@ const downloader = async (info, chunks, urlTarget, chunkProgress) => {
         let b1 = undefined
         if (chunkProgress) {
             b1 = multibar.create(bytesPerChunk + byteOffset, 0, { chunk: j.toString().padStart(3, '0') })
+        }
+
+        if (typeof delay != 'undefined') {
+            await sleep(delay)
         }
 
         waiting.push(new Promise(async (resolve, reject) => {
@@ -162,7 +170,7 @@ const writeChunks = (destName, chunkBuffers) => {
     bar1.stop()
 }
 
-const start = async (chunks, urlTarget, destFile, chunkProgress) => {
+const start = async ({ chunks, urlTarget, destFile, chunkProgress, delay }) => {
     console.time('time elapsed')
 
     const info = await getHeaderInfo(urlTarget)
@@ -179,7 +187,7 @@ const start = async (chunks, urlTarget, destFile, chunkProgress) => {
     console.log('\nfile mime:', info.fileMime)
     console.log('bytes:', info.fileBytes, ' ranges:', info.supportRanges, ' head:', info.withHead)
     
-    const chunkBuffers = await downloader(info, chunks, urlTarget, chunkProgress) // buffer
+    const chunkBuffers = await downloader(info, chunks, urlTarget, chunkProgress, delay) // buffer
     
     if (typeof destFile == 'undefined') {
         let fUrl = new URL(urlTarget)
