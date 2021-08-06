@@ -219,6 +219,12 @@ async function start(url: string, chunks: number, destFile?: string, delay?: num
     //
 }
 
+module.exports = {
+    start, downloader,
+    setUserAgent,
+    getHeaderInfo, writeChunks, fetchChunk
+}
+
 export default {
     start, downloader,
     setUserAgent,
