@@ -1,7 +1,16 @@
 {
   "name": "hydr",
-  "version": "0.0.3",
-  "main": "index.js",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "bin": {
+    "hydr": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc --build --force"
+  },
+  "files": [
+    "dist/**/*"
+  ],
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -20,7 +29,11 @@
     "mime-types": "^2.1.32",
     "yargs": "^17.0.1"
   },
-  "bin": {
-    "hydr": "./cli.js"
+  "devDependencies": {
+    "@types/cli-progress": "^3.9.2",
+    "@types/mime-types": "^2.1.0",
+    "@types/node": "^16.4.13",
+    "@types/yargs": "^17.0.2",
+    "typescript": "^4.3.5"
   }
 }
