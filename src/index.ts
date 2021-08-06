@@ -193,7 +193,7 @@ async function start(url: string, chunks: number, destFile?: string, delay?: num
 
     //
     multibar.stop()
-    if (typeof destFile == 'undefined') {
+    if (typeof destFile != 'string') {
         let fUrl = new URL(url)
         let fBasename = path.basename(fUrl.pathname)
         if (fBasename.length > 0) {
