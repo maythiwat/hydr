@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import yargs from 'yargs/yargs'
-import hydr from '.'
+import * as hydr from '.'
 
 const options = yargs(process.argv.slice(2))
     .demandCommand(1, 1)

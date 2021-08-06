@@ -1,6 +1,6 @@
 {
   "name": "hydr",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "./dist/index.js",
   "bin": {
     "hydr": "./dist/cli.js"

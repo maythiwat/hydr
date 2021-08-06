@@ -1,4 +1,3 @@
-
 import fs from 'fs/promises'
 import path from 'path'
 import { EventEmitter } from 'events'
@@ -219,13 +218,7 @@ async function start(url: string, chunks: number, destFile?: string, delay?: num
     //
 }
 
-module.exports = {
-    start, downloader,
-    setUserAgent,
-    getHeaderInfo, writeChunks, fetchChunk
-}
-
-export default {
+export {
     start, downloader,
     setUserAgent,
     getHeaderInfo, writeChunks, fetchChunk
