@@ -160,7 +160,7 @@ function downloader(info: any, chunks: number, delay?: number) {
     return promise
 }
 
-async function start(url: string, chunks: number, destFile?: string, delay?: number) {
+async function start(url: string, chunks: number, destFile?: string | boolean, delay?: number) {
     const multibar = new cliProgress.MultiBar({
         format: ' <{chunk}> {bar} | {value}/{total} ({percentage}%, eta={eta}s)',
         clearOnComplete: false,
@@ -183,12 +183,12 @@ async function start(url: string, chunks: number, destFile?: string, delay?: num
     console.log('\nfile mime:', info.fileMime)
     console.log('bytes:', info.fileBytes, ' ranges:', info.supportRanges, ' head:', info.withHead)
 
-    const bc = multibar.create(chunks, 0, { chunk: '###' })
-    const b0 = multibar.create(info.fileBytes, 0, { chunk: '###' })
+    const chunkBar = multibar.create(chunks, 0, { chunk: '###' })
+    const totalBar = multibar.create(info.fileBytes, 0, { chunk: '###' })
 
     const chunkBuffers = await downloader(info, chunks, delay)
-        .on('data', (c: number, l: number) => b0.increment(l))
-        .on('end', () => bc.increment(1))
+        .on('data', (chunkNo: number, received: number) => chunkBar.increment(received))
+        .on('end', () => totalBar.increment(1))
 
     //
     multibar.stop()
