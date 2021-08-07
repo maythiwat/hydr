@@ -14,12 +14,31 @@ function setUserAgent(userAgent: string) {
     axios.defaults.headers['user-agent'] = userAgent
 }
 
-async function fetchChunk(url: string, byteStart: number, byteEnd: number) {
+async function fetchChunk(url: string, byteStart: number, byteEnd: number, timeout: number = 0) {
     return await axios.get(url, {
         headers: {
             range: `bytes=${byteStart}-${byteEnd}`
         },
-        responseType: 'stream'
+        responseType: 'stream',
+        timeout
+    })
+}
+
+function fetchChunkUntil(url: string, byteStart: number, byteEnd: number, timeout: number = 0, maxRetries: number) {
+    return new Promise<any>(async (resolve, reject) => {
+        let retries = 0
+        while (retries < maxRetries) {
+            console.log('! attempt', retries, 'of', maxRetries, `@ ${byteStart}-${byteEnd} ...`)
+
+            try {
+                const response = await fetchChunk(url, byteStart, byteEnd, timeout)
+                resolve(response)
+            } catch (e) {}
+
+            retries++
+            await sleep(100)
+        }
+        reject()
     })
 }
 
@@ -91,7 +110,7 @@ async function getHeaderInfo(url: string) {
     return info
 }
 
-function downloader(info: any, chunks: number, delay?: number) {
+function downloader(info: any, chunks: number, delay?: number, chunkTimeout?: number, maxRetries?: number) {
     let resolves = (v: any) => {}
     let rejects = (v: any) => { }
 
@@ -125,7 +144,11 @@ function downloader(info: any, chunks: number, delay?: number) {
 
             waiting.push(new Promise<void>(async (resolve, reject) => {
                 try {
-                    const { data, headers } = await fetchChunk(info.url, byteStart, byteEnd)
+                    const { data, headers } = (
+                        (maxRetries) ?
+                            await fetchChunkUntil(info.url, byteStart, byteEnd, chunkTimeout, maxRetries) :
+                            await fetchChunk(info.url, byteStart, byteEnd, chunkTimeout)
+                    )
 
                     if (headers['content-length'] != (bytesPerChunk + byteOffset)) {
                         console.log('\n^ chunk size mismatch!, got:', headers['content-length'], '@', `${byteStart}-${byteEnd}`)
@@ -160,7 +183,7 @@ function downloader(info: any, chunks: number, delay?: number) {
     return promise
 }
 
-async function start(url: string, chunks: number, destFile?: string, delay?: number) {
+async function start(url: string, chunks: number, destFile?: string | boolean, delay?: number, chunkTimeout?: number, maxRetries?: number) {
     const multibar = new cliProgress.MultiBar({
         format: ' <{chunk}> {bar} | {value}/{total} ({percentage}%, eta={eta}s)',
         clearOnComplete: false,
@@ -183,12 +206,12 @@ async function start(url: string, chunks: number, destFile?: string, delay?: num
     console.log('\nfile mime:', info.fileMime)
     console.log('bytes:', info.fileBytes, ' ranges:', info.supportRanges, ' head:', info.withHead)
 
-    const bc = multibar.create(chunks, 0, { chunk: '###' })
-    const b0 = multibar.create(info.fileBytes, 0, { chunk: '###' })
+    const chunkBar = multibar.create(chunks, 0, { chunk: '###' })
+    const totalBar = multibar.create(info.fileBytes, 0, { chunk: '###' })
 
-    const chunkBuffers = await downloader(info, chunks, delay)
-        .on('data', (c: number, l: number) => b0.increment(l))
-        .on('end', () => bc.increment(1))
+    const chunkBuffers = await downloader(info, chunks, delay, chunkTimeout, maxRetries)
+        .on('data', (chunkNo: number, received: number) => totalBar.increment(received))
+        .on('end', () => chunkBar.increment(1))
 
     //
     multibar.stop()
