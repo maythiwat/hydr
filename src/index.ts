@@ -186,9 +186,9 @@ async function start(url: string, chunks: number, destFile?: string | boolean, d
     const chunkBar = multibar.create(chunks, 0, { chunk: '###' })
     const totalBar = multibar.create(info.fileBytes, 0, { chunk: '###' })
 
-    const chunkBuffers = await downloader(info, chunks, delay)
-        .on('data', (chunkNo: number, received: number) => chunkBar.increment(received))
-        .on('end', () => totalBar.increment(1))
+    const chunkBuffers = await downloader(info, chunks, delay, chunkTimeout, maxRetries)
+        .on('data', (chunkNo: number, received: number) => totalBar.increment(received))
+        .on('end', () => chunkBar.increment(1))
 
     //
     multibar.stop()
