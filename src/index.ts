@@ -219,7 +219,7 @@ async function start(url: string, chunks: number, destFile?: string | boolean, d
         let fUrl = new URL(url)
         let fBasename = path.basename(fUrl.pathname)
         if (fBasename.length > 0) {
-            destFile = fBasename
+            destFile = decodeURIComponent(fBasename)
         } else {
             let ext = mime.extension(info.fileMime)
             destFile = `dl-${fUrl.hostname.split('.').join('_')}-${Math.floor(new Date().getTime() / 1000)}.${ext || '.bin'}`
