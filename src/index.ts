@@ -28,11 +28,14 @@ function fetchChunkUntil(url: string, byteStart: number, byteEnd: number, timeou
     return new Promise<any>(async (resolve, reject) => {
         let retries = 0
         while (retries < maxRetries) {
-            console.log('! attempt', retries, 'of', maxRetries, `@ ${byteStart}-${byteEnd} ...`)
+            if (retries > 0) {
+                console.log('! attempt', retries, 'of', maxRetries, `@ ${byteStart}-${byteEnd} ...`)
+            }
 
             try {
                 const response = await fetchChunk(url, byteStart, byteEnd, timeout)
                 resolve(response)
+                break
             } catch (e) {}
 
             retries++
