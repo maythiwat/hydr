@@ -7,6 +7,13 @@
 ```bash
 npm i -g hydr
 ```
+  or
+```bash
+git clone https://github.com/maythiwat/hydr.git
+cd hydr
+yarn build .
+npm i -g .
+```
 
 
 ### usage
