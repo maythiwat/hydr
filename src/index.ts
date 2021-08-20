@@ -231,7 +231,7 @@ async function start(url: string, chunks: number, destFile?: string | boolean, d
 
     if (info.fileBytes > 2147483647) {
         console.log('\nwriting chunks into file:', destFile, '...')
-        writeChunks(destFile, chunkBuffers)
+        await writeChunks(destFile, chunkBuffers)
     } else {
         console.log('\nwriting to file:', destFile, '...')
         const fileBuffer = Buffer.concat(chunkBuffers, info.fileBytes)
