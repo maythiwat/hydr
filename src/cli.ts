@@ -10,12 +10,17 @@ const options = yargs(process.argv.slice(2))
     delay: { alias: 'd', type: 'number', describe: 'delay per chunks (in ms)', default: 100, demandOption: false },
     timeout: { alias: 't', type: 'number', describe: 'timeout per chunks download (in ms, 0 = forever)', default: 0, demandOption: false },
     retry: { alias: 'r', type: 'number', describe: 'max retries on chunks download timeout', demandOption: false },
-    outFlie: { alias: 'o', type: 'string', describe: 'save to filename', demandOption: false }
+    outFlie: { alias: 'o', type: 'string', describe: 'save to filename', demandOption: false },
+    userAgent: { alias: 'u', type: 'string', describe: 'user agent', demandOption: false }
   })
 .parseSync() as any;
 
 console.log('');
 
 (async () => {
+  if (typeof options.userAgent == 'string') {
+    hydr.setUserAgent(options.userAgent);
+  }
+
   await hydr.start(options._[0], options.chunks, options.outFlie, options.delay, options.timeout, options.retry);
 })();
